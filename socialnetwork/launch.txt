@@ -1,0 +1,46 @@
+http://127.0.0.1:8080/categories/
+{
+	"id": 10,
+	"name": "New category",
+	"description": "some description"
+}
+
+http://127.0.0.1:8080/users/
+{
+	"password": "new new",
+    "registrationDate": "2018-10-01T12:00:00",
+    "surname": "new new",
+    "name": "new new",
+    "id": 10,
+    "email": "new new",
+    "username": "new new"
+}
+
+http://127.0.0.1:8080/publications/
+{
+	"comments": [
+		{
+			"id": 10,
+			"text": "some comment"
+		}
+		],
+	"description": "New description",
+	"id": 10,
+	"timestamp": "2018-01-01T12:00:00",
+	"user_id": 1,
+	"category_id": 1
+}
+
+
+http://127.0.0.1:8080/categories/
+http://127.0.0.1:8080/categories/1/
+http://127.0.0.1:8080/categories/1/publications
+
+http://127.0.0.1:8080/users/
+http://127.0.0.1:8080/users/1
+http://127.0.0.1:8080/users/1/recommendations/users
+http://127.0.0.1:8080/users/1/recommendations/publications
+
+http://127.0.0.1:8080/publications/
+http://127.0.0.1:8080/publications/1/
+http://127.0.0.1:8080/publications/1/info
