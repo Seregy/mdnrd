@@ -94,14 +94,13 @@ public class UserService {
         return false;
     }
 
-    public List<OElement> getRecommendedPublications(long id) {
+    public List<OElement> getRecommendedUsers(long userId) {
         databaseSession.activateOnCurrentThread();
 
         String statement = "MATCH {class: User, where: (id = ?)}" +
-                " -Subscribes-> {}" +
-                " -Creates-> {as: publication}" +
-                " RETURN publication.id, publication.description, publication.image";
-        try (OResultSet rs = databaseSession.query(statement, id)) {
+                " -Subscribes-> {as: user, where: ($depth > 0), while: ($depth < 3)}" +
+                " RETURN user.id, user.username, user.image";
+        try (OResultSet rs = databaseSession.query(statement, userId)) {
             List<OElement> results = new ArrayList<>();
             while (rs.hasNext()) {
                 OElement element = rs.next()
@@ -113,21 +112,35 @@ public class UserService {
         }
     }
 
-    public List<OElement> getRecommendedUsers(long id) {
-        databaseSession.activateOnCurrentThread();
+    public boolean subscribeToUser(long subsriberId, long subscribedId) {
+        return addEdgeBetweenUsers(subsriberId, subscribedId, "Subscribes");
+    }
 
-        String statement = "MATCH {class: User, where: (id = ?)}" +
-                " -Subscribes-> {as: user, where: ($depth > 0), while: ($depth < 3)}" +
-                " RETURN user.id, user.username, user.image";
-        try (OResultSet rs = databaseSession.query(statement, id)) {
-            List<OElement> results = new ArrayList<>();
-            while (rs.hasNext()) {
-                OElement element = rs.next()
-                        .toElement();
-                results.add(element);
-            }
+    public boolean blockUser(long blockerId, long blockedId) {
+        return addEdgeBetweenUsers(blockerId, blockedId, "Blocks");
+    }
 
-            return results;
+    private boolean addEdgeBetweenUsers(long user1Id, long user2Id, String edgeType) {
+        Optional<OElement> user1 = getUserById(user1Id);
+        Optional<OElement> user2 = getUserById(user2Id);
+
+        if (!user1.isPresent() || !user2.isPresent()) {
+            return false;
         }
+
+        Optional<OVertex> user1VertexOptional = user1.get().asVertex();
+        Optional<OVertex> user2VertexOptional = user2.get().asVertex();
+
+        if (!user1VertexOptional.isPresent() || !user2VertexOptional.isPresent()) {
+            return false;
+        }
+
+        OVertex user1Vertex = user1VertexOptional.get();
+        OVertex user2Vertex = user2VertexOptional.get();
+
+        user1Vertex.addEdge(user2Vertex, edgeType);
+        user1Vertex.save();
+        user2Vertex.save();
+        return true;
     }
 }

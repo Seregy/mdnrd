@@ -3,16 +3,11 @@ package com.seregy77.mdnrd.socialnetwork.controller;
 import com.orientechnologies.orient.core.record.OElement;
 import com.seregy77.mdnrd.socialnetwork.domain.Json;
 import com.seregy77.mdnrd.socialnetwork.domain.UserRequest;
+import com.seregy77.mdnrd.socialnetwork.service.PublicationService;
 import com.seregy77.mdnrd.socialnetwork.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final PublicationService publicationService;
 
     @PostMapping
     public boolean createUser(@RequestBody UserRequest request) {
@@ -56,7 +52,7 @@ public class UserController {
 
     @GetMapping("/{id}/recommendations/publications")
     public ResponseEntity<List<Json>> getRecommendedPublications(@PathVariable("id") long id) {
-        List<OElement> users = userService.getRecommendedPublications(id);
+        List<OElement> users = publicationService.getRecommendedPublications(id);
 
         return ResponseEntity.ok(Json.fromOElements(users));
     }
@@ -66,5 +62,17 @@ public class UserController {
         List<OElement> users = userService.getRecommendedUsers(id);
 
         return ResponseEntity.ok(Json.fromOElements(users));
+    }
+
+    @PutMapping("/{id}/subscribe/{another-id}")
+    public boolean subscribeToUser(@PathVariable("id") long id,
+                                                          @PathVariable("another-id") long anotherId) {
+        return userService.subscribeToUser(id, anotherId);
+    }
+
+    @PutMapping("/{id}/block/{another-id}")
+    public boolean blockUser(@PathVariable("id") long id,
+                                       @PathVariable("another-id") long anotherId) {
+        return userService.blockUser(id, anotherId);
     }
 }

@@ -1,6 +1,7 @@
 package com.seregy77.mdnrd.socialnetwork.service;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -37,7 +38,8 @@ public class PublicationService {
                 .flatMap(OElement::asVertex);
         if (user.isPresent()) {
             OVertex actualUser = user.get();
-            actualUser.addEdge(publication, "Creates");
+            OEdge edge = actualUser.addEdge(publication, "Creates");
+            edge.save();
             actualUser.save();
         }
 
@@ -45,7 +47,8 @@ public class PublicationService {
                 .flatMap(OElement::asVertex);
         if (category.isPresent()) {
             OVertex actualCategory = category.get();
-            publication.addEdge(actualCategory, "BelongsTo");
+            OEdge edge = publication.addEdge(actualCategory, "BelongsTo");
+            edge.save();
             actualCategory.save();
         }
 
@@ -63,6 +66,25 @@ public class PublicationService {
                 rs.next()
                         .getElement()
                         .ifPresent(results::add);
+            }
+
+            return results;
+        }
+    }
+
+    public List<OElement> getRecommendedPublications(long userId) {
+        databaseSession.activateOnCurrentThread();
+
+        String statement = "MATCH {class: User, where: (id = ?)}" +
+                                   " -Subscribes-> {}" +
+                                   " -Creates-> {as: publication}" +
+                                   " RETURN publication.id, publication.description, publication.image";
+        try (OResultSet rs = databaseSession.query(statement, userId)) {
+            List<OElement> results = new ArrayList<>();
+            while (rs.hasNext()) {
+                OElement element = rs.next()
+                                           .toElement();
+                results.add(element);
             }
 
             return results;
