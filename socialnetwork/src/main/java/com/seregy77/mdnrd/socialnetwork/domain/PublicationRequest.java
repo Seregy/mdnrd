@@ -8,7 +8,6 @@ import java.util.List;
 
 @Data
 public class PublicationRequest {
-    private List<Object> comments;
     private String description;
     private long id;
     private byte[] image;

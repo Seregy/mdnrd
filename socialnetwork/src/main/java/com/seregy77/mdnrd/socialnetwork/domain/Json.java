@@ -21,7 +21,7 @@ public class Json {
     }
 
     public static Json fromOElement(OElement oElement) {
-        return new Json(oElement.toJSON());
+        return new Json(oElement.toJSON("fetchPlan:*:3"));
     }
 
     @JsonValue

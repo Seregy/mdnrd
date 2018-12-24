@@ -27,7 +27,6 @@ public class PublicationService {
         databaseSession.activateOnCurrentThread();
 
         OVertex publication = databaseSession.newVertex("Publication");
-        publication.setProperty("comments", publicationRequest.getComments());
         publication.setProperty("description", publicationRequest.getDescription());
         publication.setProperty("id", publicationRequest.getId());
         publication.setProperty("image", publicationRequest.getImage());

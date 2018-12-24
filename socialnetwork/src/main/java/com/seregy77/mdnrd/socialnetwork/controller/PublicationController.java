@@ -1,9 +1,11 @@
 package com.seregy77.mdnrd.socialnetwork.controller;
 
 import com.orientechnologies.orient.core.record.OElement;
+import com.seregy77.mdnrd.socialnetwork.domain.CommentRequest;
 import com.seregy77.mdnrd.socialnetwork.domain.Json;
 import com.seregy77.mdnrd.socialnetwork.domain.PublicationRequest;
 import com.seregy77.mdnrd.socialnetwork.domain.UserRequest;
+import com.seregy77.mdnrd.socialnetwork.service.CommentService;
 import com.seregy77.mdnrd.socialnetwork.service.PublicationService;
 import com.seregy77.mdnrd.socialnetwork.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +25,16 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PublicationController {
     private final PublicationService publicationService;
+    private final CommentService commentService;
 
     @PostMapping("/publications")
-    public boolean createUser(@RequestBody PublicationRequest request) {
+    public boolean createPublication(@RequestBody PublicationRequest request) {
         return publicationService.createPublication(request);
+    }
+
+    @PostMapping("/publications/{id}/comments")
+    public boolean addComment(@PathVariable("id") long publicationID, @RequestBody CommentRequest request) {
+        return commentService.addComment(publicationID, request);
     }
 
     @GetMapping("/publications")
